@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cineaste — Search History</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:        #07070f;
+      --surface:   #0e0e1c;
+      --surface2:  #14142a;
+      --accent:    #c9a84c;
+      --accent-lo: rgba(201,168,76,0.12);
+      --accent-br: rgba(201,168,76,0.28);
+      --text:      #e4dccf;
+      --muted:     #6e6884;
+      --border:    #1e1e36;
+      --error:     #ff6b6b;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Georgia', 'Times New Roman', serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 56px 20px 80px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,.55) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: -50%;
+      width: 200%;
+      height: 200%;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 720px;
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 52px;
+    }
+
+    .eyebrow {
+      font-size: 10.5px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 18px;
+    }
+
+    .eyebrow span {
+      display: inline-block;
+      margin: 0 10px;
+      vertical-align: middle;
+    }
+
+    .eyebrow::before,
+    .eyebrow::after {
+      content: '— ';
+      color: var(--muted);
+    }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: normal;
+      line-height: 1.08;
+      letter-spacing: -1px;
+      margin-bottom: 14px;
+    }
+
+    h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .tagline {
+      color: var(--muted);
+      font-style: italic;
+      font-size: 1rem;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: .7rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .2s;
+    }
+
+    .back-link:hover { color: var(--accent); }
+
+    /* ── Search entry ─────────────────────────────────── */
+    .search-entry {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px 30px;
+      margin-bottom: 24px;
+    }
+
+    .entry-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .entry-date {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: .68rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .entry-inputs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .input-pill {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: .68rem;
+      letter-spacing: 1px;
+      color: var(--accent);
+      background: var(--accent-lo);
+      border: 1px solid var(--accent-br);
+      border-radius: 20px;
+      padding: 4px 12px;
+    }
+
+    .section-label {
+      font-size: 9.5px;
+      letter-spacing: 3.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 20px 0;
+    }
+
+    .film-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px 16px 22px;
+      margin-bottom: 8px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .25s;
+    }
+
+    .film-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, var(--accent) 0%, transparent 100%);
+      opacity: .4;
+    }
+
+    .card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 7px;
+    }
+
+    .film-title {
+      font-size: 1rem;
+      line-height: 1.25;
+    }
+
+    .film-year {
+      color: var(--muted);
+      font-size: .78rem;
+      font-style: italic;
+      margin-left: 6px;
+    }
+
+    .mood {
+      flex-shrink: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: .6rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-lo);
+      border: 1px solid var(--accent-br);
+      border-radius: 20px;
+      padding: 3px 10px;
+      white-space: nowrap;
+    }
+
+    .film-reason {
+      color: var(--muted);
+      font-style: italic;
+      font-size: .84rem;
+      line-height: 1.6;
+    }
+
+    /* ── States ───────────────────────────────────────── */
+    .loading-msg, .empty-msg {
+      text-align: center;
+      color: var(--muted);
+      font-style: italic;
+      padding: 60px 0;
+    }
+
+    .error-msg {
+      background: rgba(255,107,107,.08);
+      border: 1px solid rgba(255,107,107,.25);
+      border-radius: 8px;
+      color: var(--error);
+      padding: 14px 18px;
+      font-size: .88rem;
+      text-align: center;
+    }
+
+    footer {
+      margin-top: 60px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: .7rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: #35334a;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <header>
+      <p class="eyebrow"><span>Cineaste</span></p>
+      <h1>Search<br><em>History</em></h1>
+      <p class="tagline">Every taste we've consulted the archives for.</p>
+      <a class="back-link" href="/">← Back to recommender</a>
+    </header>
+
+    <div id="content">
+      <p class="loading-msg">Loading history…</p>
+    </div>
+
+    <footer>Powered by Claude AI &nbsp;·&nbsp; Anthropic</footer>
+
+  </div>
+
+  <script>
+    async function loadHistory() {
+      const content = document.getElementById('content');
+
+      try {
+        const r = await fetch('/api/history');
+        const data = await r.json().catch(() => ({}));
+
+        if (!r.ok) throw new Error(data?.error || `Server error ${r.status}`);
+
+        const searches = data.searches ?? [];
+
+        if (searches.length === 0) {
+          content.innerHTML = '<p class="empty-msg">No searches yet. <a href="/" style="color:var(--accent)">Make your first one.</a></p>';
+          return;
+        }
+
+        content.innerHTML = searches.map(s => {
+          const date = s.created_at
+            ? new Date(s.created_at).toLocaleString('en-US', {
+                month: 'short', day: 'numeric', year: 'numeric',
+                hour: 'numeric', minute: '2-digit'
+              })
+            : '';
+
+          const movies = Array.isArray(s.movies) ? s.movies : [];
+          const recs   = Array.isArray(s.recommendations) ? s.recommendations : [];
+
+          const pillsHtml = movies.map(m => `<span class="input-pill">${esc(m)}</span>`).join('');
+
+          const filmsHtml = recs.map(f => `
+            <div class="film-card">
+              <div class="card-head">
+                <div>
+                  <span class="film-title">${esc(f.title)}</span>${f.year ? `<span class="film-year">${f.year}</span>` : ''}
+                </div>
+                ${f.mood ? `<span class="mood">${esc(f.mood)}</span>` : ''}
+              </div>
+              <p class="film-reason">${esc(f.reason)}</p>
+            </div>
+          `).join('');
+
+          return `
+            <div class="search-entry">
+              <div class="entry-meta">
+                <div class="entry-inputs">${pillsHtml}</div>
+                ${date ? `<span class="entry-date">${date}</span>` : ''}
+              </div>
+              <p class="section-label">Recommendations</p>
+              ${filmsHtml}
+            </div>
+          `;
+        }).join('');
+
+      } catch (e) {
+        content.innerHTML = `<div class="error-msg">${esc(e.message || 'Failed to load history.')}</div>`;
+      }
+    }
+
+    function esc(s) {
+      return String(s ?? '')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    loadHistory();
+  </script>
+</body>
+</html>

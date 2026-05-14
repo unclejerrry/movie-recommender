@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cineaste — AI Movie Recommender</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:        #07070f;
+      --surface:   #0e0e1c;
+      --surface2:  #14142a;
+      --accent:    #c9a84c;
+      --accent-lo: rgba(201,168,76,0.12);
+      --accent-br: rgba(201,168,76,0.28);
+      --text:      #e4dccf;
+      --muted:     #6e6884;
+      --border:    #1e1e36;
+      --error:     #ff6b6b;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Georgia', 'Times New Roman', serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 56px 20px 80px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Radial vignette */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,.55) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Film grain */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: -50%;
+      width: 200%;
+      height: 200%;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 660px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Header ─────────────────────────────────────── */
+    header {
+      text-align: center;
+      margin-bottom: 52px;
+    }
+
+    .eyebrow {
+      font-size: 10.5px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 18px;
+    }
+
+    .eyebrow span {
+      display: inline-block;
+      margin: 0 10px;
+      vertical-align: middle;
+    }
+
+    .eyebrow::before,
+    .eyebrow::after {
+      content: '— ';
+      color: var(--muted);
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 6vw, 3.6rem);
+      font-weight: normal;
+      line-height: 1.08;
+      letter-spacing: -1px;
+      margin-bottom: 14px;
+    }
+
+    h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .tagline {
+      color: var(--muted);
+      font-style: italic;
+      font-size: 1rem;
+    }
+
+    .search-count {
+      margin-top: 10px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: .7rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      opacity: 0;
+      transition: opacity .6s;
+    }
+
+    .search-count.visible { opacity: 1; }
+
+    .search-count em {
+      color: var(--accent);
+      font-style: normal;
+    }
+
+    /* ── Card base ──────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 30px 32px;
+    }
+
+    /* ── Input section ──────────────────────────────── */
+    .input-card {
+      margin-bottom: 20px;
+    }
+
+    .field {
+      margin-bottom: 22px;
+    }
+
+    label {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 3.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 9px;
+    }
+
+    input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: .95rem;
+      padding: 11px 14px;
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+    }
+
+    input::placeholder { color: #38355a; }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(201,168,76,.1);
+    }
+
+    .movies-label {
+      margin-bottom: 14px;
+    }
+
+    .movie-row {
+      display: grid;
+      grid-template-columns: 26px 1fr;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .num {
+      color: var(--accent);
+      font-style: italic;
+      font-size: .85rem;
+      text-align: center;
+      opacity: .8;
+    }
+
+    /* ── Submit button ──────────────────────────────── */
+    .btn {
+      width: 100%;
+      background: var(--accent);
+      color: #06060c;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: .8rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      padding: 14px;
+      cursor: pointer;
+      transition: background .2s, transform .1s, box-shadow .2s;
+      margin-top: 6px;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: #d9b95c;
+      box-shadow: 0 4px 24px rgba(201,168,76,.25);
+    }
+
+    .btn:active:not(:disabled) { transform: scale(.99); }
+
+    .btn:disabled {
+      background: #5a4e28;
+      cursor: not-allowed;
+      color: #2a2418;
+    }
+
+    /* ── Status / error ─────────────────────────────── */
+    .status {
+      text-align: center;
+      color: var(--muted);
+      font-style: italic;
+      font-size: .88rem;
+      margin-top: 14px;
+      min-height: 22px;
+    }
+
+    .status.loading::after {
+      content: '';
+      display: inline-block;
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-left: 6px;
+      animation: blink 1.2s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%,100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    .error {
+      background: rgba(255,107,107,.08);
+      border: 1px solid rgba(255,107,107,.25);
+      border-radius: 8px;
+      color: var(--error);
+      padding: 11px 14px;
+      font-size: .88rem;
+      margin-top: 14px;
+      line-height: 1.5;
+    }
+
+    /* ── Results ────────────────────────────────────── */
+    #results { display: none; }
+    #results.visible { display: block; }
+
+    .results-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .results-eyebrow {
+      font-size: 10px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .results-sub {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .film-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px 26px 22px 30px;
+      margin-bottom: 12px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .25s, transform .25s, box-shadow .25s;
+      cursor: default;
+    }
+
+    .film-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, var(--accent) 0%, transparent 100%);
+      opacity: 0;
+      transition: opacity .25s;
+    }
+
+    .film-card:hover {
+      border-color: var(--accent-br);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0,0,0,.35);
+    }
+
+    .film-card:hover::before { opacity: 1; }
+
+    .card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 9px;
+    }
+
+    .film-title {
+      font-size: 1.15rem;
+      line-height: 1.25;
+    }
+
+    .film-year {
+      color: var(--muted);
+      font-size: .82rem;
+      font-style: italic;
+      margin-left: 7px;
+    }
+
+    .mood {
+      flex-shrink: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: .65rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-lo);
+      border: 1px solid var(--accent-br);
+      border-radius: 20px;
+      padding: 4px 11px;
+      white-space: nowrap;
+      margin-top: 2px;
+    }
+
+    .film-reason {
+      color: var(--muted);
+      font-style: italic;
+      font-size: .88rem;
+      line-height: 1.6;
+    }
+
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .heart-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.05rem;
+      color: var(--muted);
+      padding: 2px 3px;
+      line-height: 1;
+      transition: color .2s, transform .15s;
+    }
+
+    .heart-btn:hover { color: #c45c7a; transform: scale(1.2); }
+    .heart-btn.saved { color: #c45c7a; }
+
+    /* ── Footer ─────────────────────────────────────── */
+    footer {
+      margin-top: 60px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: .7rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: #35334a;
+      text-align: center;
+    }
+
+    footer a {
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .2s;
+    }
+
+    footer a:hover { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <header>
+      <p class="eyebrow"><span>Cineaste</span></p>
+      <h1>Find Your<br><em>Next Film</em></h1>
+      <p class="tagline">Tell us what you love. We'll find what you're missing.</p>
+      <p class="search-count" id="search-count"></p>
+    </header>
+
+    <div class="card input-card">
+
+      <div class="field">
+        <label class="movies-label">Your three favourite films</label>
+        <div class="movie-row">
+          <span class="num">I</span>
+          <input type="text" id="m1" placeholder="e.g. Blade Runner 2049">
+        </div>
+        <div class="movie-row">
+          <span class="num">II</span>
+          <input type="text" id="m2" placeholder="e.g. Parasite">
+        </div>
+        <div class="movie-row">
+          <span class="num">III</span>
+          <input type="text" id="m3" placeholder="e.g. Eternal Sunshine of the Spotless Mind">
+        </div>
+      </div>
+
+      <button class="btn" id="btn" onclick="recommend()">Find My Films</button>
+      <div class="status" id="status"></div>
+      <div id="err"></div>
+
+    </div>
+
+    <div id="results">
+      <div class="results-header">
+        <p class="results-eyebrow">Curated for you</p>
+        <p class="results-sub">Five films worth your time</p>
+      </div>
+      <div id="list"></div>
+    </div>
+
+    <footer>Powered by Claude AI &nbsp;·&nbsp; Anthropic &nbsp;·&nbsp; <a href="/history">History</a> &nbsp;·&nbsp; <a href="/favourites">Favourites</a></footer>
+
+  </div>
+
+  <script>
+    async function recommend() {
+      const m1   = document.getElementById('m1').value.trim();
+      const m2   = document.getElementById('m2').value.trim();
+      const m3   = document.getElementById('m3').value.trim();
+      const btn  = document.getElementById('btn');
+      const stat = document.getElementById('status');
+      const err  = document.getElementById('err');
+      const res  = document.getElementById('results');
+
+      err.innerHTML = '';
+      res.classList.remove('visible');
+
+      if (!m1||!m2||!m3) return showErr('Please enter all three favourite films.');
+
+      btn.disabled = true;
+      stat.textContent = 'Consulting the archives';
+      stat.classList.add('loading');
+
+      try {
+        const r = await fetch('/recommend', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ movies: [m1, m2, m3] })
+        });
+
+        const data = await r.json().catch(() => ({}));
+
+        if (!r.ok) {
+          throw new Error(data?.error || `Server error ${r.status}`);
+        }
+
+        const films = data.films;
+        if (!Array.isArray(films) || films.length === 0) {
+          throw new Error('Could not parse the response. Please try again.');
+        }
+
+        renderResults(films);
+        stat.textContent = '';
+        stat.classList.remove('loading');
+
+      } catch (e) {
+        showErr(e.message || 'Something went wrong. Please try again.');
+        stat.textContent = '';
+        stat.classList.remove('loading');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function renderResults(films) {
+      const list = document.getElementById('list');
+      const res  = document.getElementById('results');
+
+      list.innerHTML = films.map(f => {
+        const saved = savedFavourites.has(f.title);
+        return `
+          <div class="film-card">
+            <div class="card-head">
+              <div>
+                <span class="film-title">${esc(f.title)}</span>${f.year ? `<span class="film-year">${f.year}</span>` : ''}
+              </div>
+              <div class="card-actions">
+                ${f.mood ? `<span class="mood">${esc(f.mood)}</span>` : ''}
+                <button class="heart-btn${saved ? ' saved' : ''}"
+                  data-title="${esc(f.title)}"
+                  data-year="${f.year || ''}"
+                  data-reason="${esc(f.reason || '')}"
+                  data-mood="${esc(f.mood || '')}"
+                  onclick="toggleFavourite(this)"
+                  aria-label="${saved ? 'Remove from favourites' : 'Add to favourites'}"
+                >${saved ? '♥' : '♡'}</button>
+              </div>
+            </div>
+            <p class="film-reason">${esc(f.reason)}</p>
+          </div>
+        `;
+      }).join('');
+
+      res.classList.add('visible');
+      res.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function showErr(msg) {
+      document.getElementById('err').innerHTML =
+        `<div class="error">${esc(msg)}</div>`;
+    }
+
+    function esc(s) {
+      return String(s ?? '')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    const savedFavourites = new Map(); // title → supabase row id
+
+    async function loadFavourites() {
+      try {
+        const r = await fetch('/api/favourites');
+        const { favourites } = await r.json();
+        savedFavourites.clear();
+        (favourites ?? []).forEach(f => savedFavourites.set(f.title, f.id));
+      } catch (_) {}
+    }
+
+    async function toggleFavourite(btn) {
+      const title = btn.dataset.title;
+      if (savedFavourites.has(title)) {
+        const id = savedFavourites.get(title);
+        const r = await fetch(`/api/favourites/${id}`, { method: 'DELETE' });
+        if (r.ok) {
+          savedFavourites.delete(title);
+          btn.classList.remove('saved');
+          btn.textContent = '♡';
+          btn.setAttribute('aria-label', 'Add to favourites');
+        }
+      } else {
+        const r = await fetch('/api/favourites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title,
+            year: btn.dataset.year ? Number(btn.dataset.year) : null,
+            reason: btn.dataset.reason,
+            mood: btn.dataset.mood,
+          }),
+        });
+        const data = await r.json();
+        if (r.ok && data.favourite) {
+          savedFavourites.set(title, data.favourite.id);
+          btn.classList.add('saved');
+          btn.textContent = '♥';
+          btn.setAttribute('aria-label', 'Remove from favourites');
+        }
+      }
+    }
+
+    async function loadCount() {
+      try {
+        const r = await fetch('/api/count');
+        const { count } = await r.json();
+        if (typeof count === 'number') {
+          const el = document.getElementById('search-count');
+          el.innerHTML = `Discovered by <em>${count.toLocaleString()}</em> cinephile${count === 1 ? '' : 's'}`;
+          el.classList.add('visible');
+        }
+      } catch (_) {}
+    }
+
+    loadFavourites();
+    loadCount();
+
+    const favChannel = new BroadcastChannel('cineaste-favourites');
+    favChannel.onmessage = ({ data }) => {
+      if (data?.type !== 'deleted') return;
+      const { title } = data;
+      savedFavourites.delete(title);
+      document.querySelectorAll('.heart-btn').forEach(btn => {
+        if (btn.dataset.title === title) {
+          btn.classList.remove('saved');
+          btn.textContent = '♡';
+          btn.setAttribute('aria-label', 'Add to favourites');
+        }
+      });
+    };
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        const b = document.getElementById('btn');
+        if (!b.disabled) recommend();
+      }
+    });
+  </script>
+</body>
+</html>
