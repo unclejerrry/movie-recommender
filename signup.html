@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cineaste — Create Account</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:        #07070f;
+      --surface:   #0e0e1c;
+      --accent:    #c9a84c;
+      --accent-lo: rgba(201,168,76,0.12);
+      --accent-br: rgba(201,168,76,0.28);
+      --text:      #e4dccf;
+      --muted:     #6e6884;
+      --border:    #1e1e36;
+      --error:     #ff6b6b;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Georgia', 'Times New Roman', serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,.55) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: -50%;
+      width: 200%;
+      height: 200%;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .eyebrow {
+      font-size: 10.5px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 18px;
+    }
+
+    .eyebrow span { display: inline-block; margin: 0 10px; vertical-align: middle; }
+    .eyebrow::before, .eyebrow::after { content: '— '; color: var(--muted); }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 2.8rem);
+      font-weight: normal;
+      line-height: 1.08;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+    }
+
+    h1 em { font-style: italic; color: var(--accent); }
+
+    .tagline {
+      color: var(--muted);
+      font-style: italic;
+      font-size: .95rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 30px 32px;
+    }
+
+    .field { margin-bottom: 20px; }
+
+    label {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 3.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 9px;
+    }
+
+    input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: .95rem;
+      padding: 11px 14px;
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+    }
+
+    input::placeholder { color: #38355a; }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(201,168,76,.1);
+    }
+
+    .btn {
+      width: 100%;
+      background: var(--accent);
+      color: #06060c;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: .8rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      padding: 14px;
+      cursor: pointer;
+      transition: background .2s, box-shadow .2s;
+      margin-top: 8px;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: #d9b95c;
+      box-shadow: 0 4px 24px rgba(201,168,76,.25);
+    }
+
+    .btn:disabled { background: #5a4e28; cursor: not-allowed; color: #2a2418; }
+
+    .error {
+      background: rgba(255,107,107,.08);
+      border: 1px solid rgba(255,107,107,.25);
+      border-radius: 8px;
+      color: var(--error);
+      padding: 11px 14px;
+      font-size: .88rem;
+      margin-top: 14px;
+      line-height: 1.5;
+    }
+
+    .success {
+      background: var(--accent-lo);
+      border: 1px solid var(--accent-br);
+      border-radius: 8px;
+      color: var(--accent);
+      padding: 11px 14px;
+      font-size: .88rem;
+      margin-top: 14px;
+      line-height: 1.5;
+      font-style: italic;
+    }
+
+    .switch-link {
+      text-align: center;
+      margin-top: 22px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: .75rem;
+      letter-spacing: 1px;
+      color: var(--muted);
+    }
+
+    .switch-link a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .switch-link a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <p class="eyebrow"><span>Cineaste</span></p>
+      <h1>Join<br><em>the Circle</em></h1>
+      <p class="tagline">Create an account to save your discoveries.</p>
+    </header>
+
+    <div class="card">
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="••••••••" autocomplete="new-password">
+      </div>
+      <div class="field" style="margin-bottom:4px">
+        <label for="confirm">Confirm Password</label>
+        <input type="password" id="confirm" placeholder="••••••••" autocomplete="new-password">
+      </div>
+      <button class="btn" id="btn" onclick="signUp()">Create Account</button>
+      <div id="msg"></div>
+    </div>
+
+    <p class="switch-link">Already have an account? <a href="/signin">Sign in →</a></p>
+  </div>
+
+  <script src="/supabase.js"></script>
+  <script>
+    let _sb = null;
+    async function getSb() {
+      if (_sb) return _sb;
+      const { supabaseUrl, supabaseAnonKey } = await fetch('/api/config').then(r => r.json());
+      _sb = supabase.createClient(supabaseUrl, supabaseAnonKey);
+      return _sb;
+    }
+
+    async function init() {
+      const sb = await getSb();
+      const { data: { session } } = await sb.auth.getSession();
+      if (session) window.location.replace('/');
+    }
+
+    async function signUp() {
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirm  = document.getElementById('confirm').value;
+      const btn      = document.getElementById('btn');
+
+      document.getElementById('msg').innerHTML = '';
+
+      if (!email || !password) { showMsg('Please fill in all fields.', 'error'); return; }
+      if (password.length < 6) { showMsg('Password must be at least 6 characters.', 'error'); return; }
+      if (password !== confirm) { showMsg('Passwords do not match.', 'error'); return; }
+
+      btn.disabled = true;
+      btn.textContent = 'Creating account…';
+
+      const sb = await getSb();
+      const { data, error } = await sb.auth.signUp({ email, password });
+
+      if (error) {
+        showMsg(error.message, 'error');
+        btn.disabled = false;
+        btn.textContent = 'Create Account';
+      } else if (data.session) {
+        window.location.replace('/');
+      } else {
+        showMsg('Check your email to confirm your account, then sign in.', 'success');
+        btn.textContent = 'Account created';
+      }
+    }
+
+    function showMsg(msg, type) {
+      document.getElementById('msg').innerHTML = `<div class="${type}">${esc(msg)}</div>`;
+    }
+
+    function esc(s) {
+      return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !document.getElementById('btn').disabled) signUp();
+    });
+
+    init();
+  </script>
+</body>
+</html>

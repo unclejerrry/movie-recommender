@@ -28,12 +28,11 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 56px 20px 80px;
+      padding: 100px 20px 80px;
       position: relative;
       overflow-x: hidden;
     }
 
-    /* Radial vignette */
     body::after {
       content: '';
       position: fixed;
@@ -43,7 +42,6 @@
       z-index: 0;
     }
 
-    /* Film grain */
     body::before {
       content: '';
       position: fixed;
@@ -55,6 +53,136 @@
       z-index: 0;
     }
 
+    /* ── Top nav ─────────────────────────────────────── */
+    .topnav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 28px;
+      background: rgba(7,7,15,.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    .nav-logo {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-size: 1rem;
+      font-style: italic;
+      color: var(--accent);
+      text-decoration: none;
+      letter-spacing: .5px;
+    }
+
+    .nav-user {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-email {
+      font-size: .65rem;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .nav-plan {
+      font-size: .6rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .nav-plan.plan-free {
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .nav-plan.plan-pro {
+      color: var(--accent);
+      background: var(--accent-lo);
+      border: 1px solid var(--accent-br);
+    }
+
+    .nav-upgrade {
+      display: none;
+      background: none;
+      border: 1px solid var(--accent-br);
+      border-radius: 6px;
+      color: var(--accent);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: .6rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: background .2s, color .2s, border-color .2s;
+    }
+
+    .nav-upgrade:hover:not(:disabled) { background: var(--accent); color: #06060c; border-color: var(--accent); }
+    .nav-upgrade:disabled { opacity: .5; cursor: default; }
+
+    .nav-signout {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: .6rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: color .2s, border-color .2s;
+    }
+
+    .nav-signout:hover { color: var(--accent); border-color: var(--accent-br); }
+
+    /* ── Checkout success banner ──────────────────────── */
+    .checkout-banner {
+      position: fixed;
+      top: 62px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: #06060c;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .5px;
+      padding: 10px 18px 10px 14px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 200;
+      box-shadow: 0 4px 24px rgba(0,0,0,.5);
+      white-space: nowrap;
+    }
+
+    .checkout-banner button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #06060c;
+      font-size: .75rem;
+      opacity: .55;
+      padding: 0;
+      line-height: 1;
+      transition: opacity .15s;
+    }
+
+    .checkout-banner button:hover { opacity: 1; }
+
+    /* ── Main container ───────────────────────────────── */
     .container {
       width: 100%;
       max-width: 660px;
@@ -62,7 +190,6 @@
       z-index: 1;
     }
 
-    /* ── Header ─────────────────────────────────────── */
     header {
       text-align: center;
       margin-bottom: 52px;
@@ -76,17 +203,8 @@
       margin-bottom: 18px;
     }
 
-    .eyebrow span {
-      display: inline-block;
-      margin: 0 10px;
-      vertical-align: middle;
-    }
-
-    .eyebrow::before,
-    .eyebrow::after {
-      content: '— ';
-      color: var(--muted);
-    }
+    .eyebrow span { display: inline-block; margin: 0 10px; vertical-align: middle; }
+    .eyebrow::before, .eyebrow::after { content: '— '; color: var(--muted); }
 
     h1 {
       font-size: clamp(2.2rem, 6vw, 3.6rem);
@@ -96,16 +214,9 @@
       margin-bottom: 14px;
     }
 
-    h1 em {
-      font-style: italic;
-      color: var(--accent);
-    }
+    h1 em { font-style: italic; color: var(--accent); }
 
-    .tagline {
-      color: var(--muted);
-      font-style: italic;
-      font-size: 1rem;
-    }
+    .tagline { color: var(--muted); font-style: italic; font-size: 1rem; }
 
     .search-count {
       margin-top: 10px;
@@ -119,13 +230,9 @@
     }
 
     .search-count.visible { opacity: 1; }
+    .search-count em { color: var(--accent); font-style: normal; }
 
-    .search-count em {
-      color: var(--accent);
-      font-style: normal;
-    }
-
-    /* ── Card base ──────────────────────────────────── */
+    /* ── Cards ────────────────────────────────────────── */
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -133,14 +240,9 @@
       padding: 30px 32px;
     }
 
-    /* ── Input section ──────────────────────────────── */
-    .input-card {
-      margin-bottom: 20px;
-    }
+    .input-card { margin-bottom: 20px; }
 
-    .field {
-      margin-bottom: 22px;
-    }
+    .field { margin-bottom: 22px; }
 
     label {
       display: block;
@@ -171,9 +273,7 @@
       box-shadow: 0 0 0 3px rgba(201,168,76,.1);
     }
 
-    .movies-label {
-      margin-bottom: 14px;
-    }
+    .movies-label { margin-bottom: 14px; }
 
     .movie-row {
       display: grid;
@@ -183,15 +283,9 @@
       margin-bottom: 10px;
     }
 
-    .num {
-      color: var(--accent);
-      font-style: italic;
-      font-size: .85rem;
-      text-align: center;
-      opacity: .8;
-    }
+    .num { color: var(--accent); font-style: italic; font-size: .85rem; text-align: center; opacity: .8; }
 
-    /* ── Submit button ──────────────────────────────── */
+    /* ── Buttons ──────────────────────────────────────── */
     .btn {
       width: 100%;
       background: var(--accent);
@@ -216,13 +310,9 @@
 
     .btn:active:not(:disabled) { transform: scale(.99); }
 
-    .btn:disabled {
-      background: #5a4e28;
-      cursor: not-allowed;
-      color: #2a2418;
-    }
+    .btn:disabled { background: #5a4e28; cursor: not-allowed; color: #2a2418; }
 
-    /* ── Status / error ─────────────────────────────── */
+    /* ── Status / errors ──────────────────────────────── */
     .status {
       text-align: center;
       color: var(--muted);
@@ -258,14 +348,56 @@
       line-height: 1.5;
     }
 
-    /* ── Results ────────────────────────────────────── */
+    /* ── Limit reached card ───────────────────────────── */
+    .limit-card {
+      background: var(--accent-lo);
+      border: 1px solid var(--accent-br);
+      border-radius: 8px;
+      padding: 20px 22px;
+      margin-top: 14px;
+      text-align: center;
+    }
+
+    .limit-card p:first-child {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .limit-card p:last-of-type {
+      color: var(--muted);
+      font-style: italic;
+      font-size: .88rem;
+      margin-bottom: 16px;
+      line-height: 1.55;
+    }
+
+    .btn-upgrade {
+      display: inline-block;
+      background: var(--accent);
+      color: #06060c;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      padding: 12px 22px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    .btn-upgrade:hover:not(:disabled) { background: #d9b95c; }
+    .btn-upgrade:disabled { opacity: .6; cursor: default; }
+
+    /* ── Results ──────────────────────────────────────── */
     #results { display: none; }
     #results.visible { display: block; }
 
-    .results-header {
-      text-align: center;
-      margin-bottom: 32px;
-    }
+    .results-header { text-align: center; margin-bottom: 32px; }
 
     .results-eyebrow {
       font-size: 10px;
@@ -275,10 +407,7 @@
       margin-bottom: 6px;
     }
 
-    .results-sub {
-      color: var(--muted);
-      font-style: italic;
-    }
+    .results-sub { color: var(--muted); font-style: italic; }
 
     .film-card {
       background: var(--surface);
@@ -302,12 +431,7 @@
       transition: opacity .25s;
     }
 
-    .film-card:hover {
-      border-color: var(--accent-br);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 32px rgba(0,0,0,.35);
-    }
-
+    .film-card:hover { border-color: var(--accent-br); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,.35); }
     .film-card:hover::before { opacity: 1; }
 
     .card-head {
@@ -318,17 +442,8 @@
       margin-bottom: 9px;
     }
 
-    .film-title {
-      font-size: 1.15rem;
-      line-height: 1.25;
-    }
-
-    .film-year {
-      color: var(--muted);
-      font-size: .82rem;
-      font-style: italic;
-      margin-left: 7px;
-    }
+    .film-title { font-size: 1.15rem; line-height: 1.25; }
+    .film-year { color: var(--muted); font-size: .82rem; font-style: italic; margin-left: 7px; }
 
     .mood {
       flex-shrink: 0;
@@ -346,20 +461,9 @@
       margin-top: 2px;
     }
 
-    .film-reason {
-      color: var(--muted);
-      font-style: italic;
-      font-size: .88rem;
-      line-height: 1.6;
-    }
+    .film-reason { color: var(--muted); font-style: italic; font-size: .88rem; line-height: 1.6; }
 
-    .card-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
+    .card-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; margin-top: 2px; }
 
     .heart-btn {
       background: none;
@@ -375,7 +479,7 @@
     .heart-btn:hover { color: #c45c7a; transform: scale(1.2); }
     .heart-btn.saved { color: #c45c7a; }
 
-    /* ── Footer ─────────────────────────────────────── */
+    /* ── Footer ───────────────────────────────────────── */
     footer {
       margin-top: 60px;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -386,16 +490,21 @@
       text-align: center;
     }
 
-    footer a {
-      color: var(--muted);
-      text-decoration: none;
-      transition: color .2s;
-    }
-
+    footer a { color: var(--muted); text-decoration: none; transition: color .2s; }
     footer a:hover { color: var(--accent); }
   </style>
 </head>
 <body>
+  <nav class="topnav">
+    <a class="nav-logo" href="/">Cineaste</a>
+    <div class="nav-user">
+      <span class="nav-plan" id="nav-plan"></span>
+      <span class="nav-email" id="nav-email"></span>
+      <button class="nav-upgrade" id="nav-upgrade" onclick="upgrade()">Upgrade</button>
+      <button class="nav-signout" onclick="signOut()">Sign out</button>
+    </div>
+  </nav>
+
   <div class="container">
 
     <header>
@@ -406,7 +515,6 @@
     </header>
 
     <div class="card input-card">
-
       <div class="field">
         <label class="movies-label">Your three favourite films</label>
         <div class="movie-row">
@@ -426,7 +534,6 @@
       <button class="btn" id="btn" onclick="recommend()">Find My Films</button>
       <div class="status" id="status"></div>
       <div id="err"></div>
-
     </div>
 
     <div id="results">
@@ -441,7 +548,84 @@
 
   </div>
 
+  <script src="/supabase.js"></script>
+  <script src="/auth-shared.js"></script>
   <script>
+    // ── Plan / upgrade ──────────────────────────────────────────────
+
+    async function loadMe() {
+      try {
+        const r = await fetch('/api/me', { headers: await getAuthHeaders() });
+        const me = await r.json();
+
+        const planEl    = document.getElementById('nav-plan');
+        const upgradeBtn = document.getElementById('nav-upgrade');
+        const searchBtn  = document.getElementById('btn');
+
+        if (me.plan === 'pro') {
+          planEl.textContent = 'Pro';
+          planEl.className = 'nav-plan plan-pro';
+        } else {
+          const left = Math.max(0, (me.searchLimit ?? 3) - (me.searchesToday ?? 0));
+          planEl.textContent = left === 1 ? '1 search left' : `${left} searches left`;
+          planEl.className = 'nav-plan plan-free';
+          upgradeBtn.style.display = '';
+
+          if (left === 0) {
+            searchBtn.disabled = true;
+            showLimitCard();
+          }
+        }
+
+        return me;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    async function upgrade() {
+      const btn = document.getElementById('nav-upgrade');
+      const inlineBtn = document.getElementById('upgrade-inline-btn');
+      [btn, inlineBtn].forEach(b => { if (b) { b.disabled = true; b.textContent = 'Loading…'; } });
+
+      try {
+        const r = await fetch('/api/create-checkout-session', {
+          method: 'POST',
+          headers: await getAuthHeaders(),
+        });
+        const { url, error } = await r.json();
+        if (error) throw new Error(error);
+        window.location.href = url;
+      } catch (e) {
+        [btn, inlineBtn].forEach(b => {
+          if (b) { b.disabled = false; b.textContent = b === btn ? 'Upgrade' : 'Upgrade to Pro — $9.99 / month'; }
+        });
+        showErr(e.message || 'Could not start checkout. Please try again.');
+      }
+    }
+
+    function showLimitCard() {
+      document.getElementById('err').innerHTML = `
+        <div class="limit-card">
+          <p>Daily limit reached</p>
+          <p>You've used all 3 free searches for today. Upgrade to Pro for unlimited searches.</p>
+          <button class="btn-upgrade" id="upgrade-inline-btn" onclick="upgrade()">
+            Upgrade to Pro &mdash; $9.99 / month
+          </button>
+        </div>`;
+    }
+
+    function showCheckoutSuccess() {
+      const banner = document.createElement('div');
+      banner.className = 'checkout-banner';
+      banner.innerHTML = `
+        <span>Welcome to Pro — enjoy unlimited searches.</span>
+        <button onclick="this.parentElement.remove()" aria-label="Dismiss">✕</button>`;
+      document.body.appendChild(banner);
+    }
+
+    // ── Recommend ────────────────────────────────────────────────────
+
     async function recommend() {
       const m1   = document.getElementById('m1').value.trim();
       const m2   = document.getElementById('m2').value.trim();
@@ -463,15 +647,21 @@
       try {
         const r = await fetch('/recommend', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ movies: [m1, m2, m3] })
+          headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
+          body: JSON.stringify({ movies: [m1, m2, m3] }),
         });
 
         const data = await r.json().catch(() => ({}));
 
-        if (!r.ok) {
-          throw new Error(data?.error || `Server error ${r.status}`);
+        if (data.limitReached) {
+          await loadMe();
+          stat.textContent = '';
+          stat.classList.remove('loading');
+          btn.disabled = true;
+          return;
         }
+
+        if (!r.ok) throw new Error(data?.error || `Server error ${r.status}`);
 
         const films = data.films;
         if (!Array.isArray(films) || films.length === 0) {
@@ -481,13 +671,15 @@
         renderResults(films);
         stat.textContent = '';
         stat.classList.remove('loading');
+        loadMe();
 
       } catch (e) {
         showErr(e.message || 'Something went wrong. Please try again.');
         stat.textContent = '';
         stat.classList.remove('loading');
       } finally {
-        btn.disabled = false;
+        const limitReached = document.getElementById('err').innerHTML.includes('limit-card');
+        if (!limitReached) btn.disabled = false;
       }
     }
 
@@ -516,8 +708,7 @@
               </div>
             </div>
             <p class="film-reason">${esc(f.reason)}</p>
-          </div>
-        `;
+          </div>`;
       }).join('');
 
       res.classList.add('visible');
@@ -525,21 +716,20 @@
     }
 
     function showErr(msg) {
-      document.getElementById('err').innerHTML =
-        `<div class="error">${esc(msg)}</div>`;
+      document.getElementById('err').innerHTML = `<div class="error">${esc(msg)}</div>`;
     }
 
     function esc(s) {
-      return String(s ?? '')
-        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    const savedFavourites = new Map(); // title → supabase row id
+    // ── Favourites ───────────────────────────────────────────────────
+
+    const savedFavourites = new Map();
 
     async function loadFavourites() {
       try {
-        const r = await fetch('/api/favourites');
+        const r = await fetch('/api/favourites', { headers: await getAuthHeaders() });
         const { favourites } = await r.json();
         savedFavourites.clear();
         (favourites ?? []).forEach(f => savedFavourites.set(f.title, f.id));
@@ -550,7 +740,10 @@
       const title = btn.dataset.title;
       if (savedFavourites.has(title)) {
         const id = savedFavourites.get(title);
-        const r = await fetch(`/api/favourites/${id}`, { method: 'DELETE' });
+        const r = await fetch(`/api/favourites/${id}`, {
+          method: 'DELETE',
+          headers: await getAuthHeaders(),
+        });
         if (r.ok) {
           savedFavourites.delete(title);
           btn.classList.remove('saved');
@@ -560,7 +753,7 @@
       } else {
         const r = await fetch('/api/favourites', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
           body: JSON.stringify({
             title,
             year: btn.dataset.year ? Number(btn.dataset.year) : null,
@@ -578,6 +771,8 @@
       }
     }
 
+    // ── Global search count ───────────────────────────────────────────
+
     async function loadCount() {
       try {
         const r = await fetch('/api/count');
@@ -590,16 +785,14 @@
       } catch (_) {}
     }
 
-    loadFavourites();
-    loadCount();
+    // ── Broadcast channel (favourites sync) ───────────────────────────
 
     const favChannel = new BroadcastChannel('cineaste-favourites');
     favChannel.onmessage = ({ data }) => {
       if (data?.type !== 'deleted') return;
-      const { title } = data;
-      savedFavourites.delete(title);
+      savedFavourites.delete(data.title);
       document.querySelectorAll('.heart-btn').forEach(btn => {
-        if (btn.dataset.title === title) {
+        if (btn.dataset.title === data.title) {
           btn.classList.remove('saved');
           btn.textContent = '♡';
           btn.setAttribute('aria-label', 'Add to favourites');
@@ -613,6 +806,25 @@
         if (!b.disabled) recommend();
       }
     });
+
+    // ── Init ──────────────────────────────────────────────────────────
+
+    async function init() {
+      const session = await requireAuth();
+      if (!session) return;
+
+      renderNavUser(session.user.email);
+
+      if (window.location.search.includes('checkout=success')) {
+        history.replaceState({}, '', '/');
+        showCheckoutSuccess();
+        setTimeout(loadMe, 1500);
+      }
+
+      await Promise.all([loadMe(), loadFavourites(), loadCount()]);
+    }
+
+    init();
   </script>
 </body>
 </html>

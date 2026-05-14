@@ -28,7 +28,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 56px 20px 80px;
+      padding: 100px 20px 80px;
       position: relative;
       overflow-x: hidden;
     }
@@ -52,6 +52,91 @@
       pointer-events: none;
       z-index: 0;
     }
+
+    /* ── Top nav ────────────────────────────────────── */
+    .topnav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 28px;
+      background: rgba(7,7,15,.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    .nav-logo {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-size: 1rem;
+      font-style: italic;
+      color: var(--accent);
+      text-decoration: none;
+      letter-spacing: .5px;
+    }
+
+    .nav-user {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .nav-email {
+      font-size: .65rem;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .nav-signout {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: .6rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: color .2s, border-color .2s;
+    }
+
+    .nav-signout:hover { color: var(--accent); border-color: var(--accent-br); }
+
+    .nav-plan {
+      font-size: .6rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .nav-plan.plan-free { color: var(--muted); border: 1px solid var(--border); }
+    .nav-plan.plan-pro  { color: var(--accent); background: var(--accent-lo); border: 1px solid var(--accent-br); }
+
+    .nav-upgrade {
+      display: none;
+      background: none;
+      border: 1px solid var(--accent-br);
+      border-radius: 6px;
+      color: var(--accent);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: .6rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: background .2s, color .2s, border-color .2s;
+    }
+
+    .nav-upgrade:hover:not(:disabled) { background: var(--accent); color: #06060c; border-color: var(--accent); }
+    .nav-upgrade:disabled { opacity: .5; cursor: default; }
 
     .container {
       width: 100%;
@@ -267,7 +352,17 @@
   </style>
 </head>
 <body>
-  <div class="container">
+  <nav class="topnav">
+    <a class="nav-logo" href="/">Cineaste</a>
+    <div class="nav-user">
+      <span class="nav-plan" id="nav-plan"></span>
+      <span class="nav-email" id="nav-email"></span>
+      <button class="nav-upgrade" id="nav-upgrade" onclick="upgrade()">Upgrade</button>
+      <button class="nav-signout" onclick="signOut()">Sign out</button>
+    </div>
+  </nav>
+
+  <div class="container" id="main-container">
 
     <header>
       <p class="eyebrow"><span>Cineaste</span></p>
@@ -284,12 +379,14 @@
 
   </div>
 
+  <script src="/supabase.js"></script>
+  <script src="/auth-shared.js"></script>
   <script>
     async function loadHistory() {
       const content = document.getElementById('content');
 
       try {
-        const r = await fetch('/api/history');
+        const r = await fetch('/api/history', { headers: await getAuthHeaders() });
         const data = await r.json().catch(() => ({}));
 
         if (!r.ok) throw new Error(data?.error || `Server error ${r.status}`);
@@ -349,7 +446,38 @@
         .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    loadHistory();
+    async function upgrade() {
+      const btn = document.getElementById('nav-upgrade');
+      btn.disabled = true; btn.textContent = 'Loading…';
+      try {
+        const r = await fetch('/api/create-checkout-session', { method: 'POST', headers: await getAuthHeaders() });
+        const { url, error } = await r.json();
+        if (error) throw new Error(error);
+        window.location.href = url;
+      } catch (e) {
+        btn.disabled = false; btn.textContent = 'Upgrade';
+      }
+    }
+
+    async function loadMe() {
+      try {
+        const r = await fetch('/api/me', { headers: await getAuthHeaders() });
+        const me = await r.json();
+        const planEl = document.getElementById('nav-plan');
+        planEl.textContent = me.plan === 'pro' ? 'Pro' : 'Free';
+        planEl.className = `nav-plan plan-${me.plan}`;
+        if (me.plan !== 'pro') document.getElementById('nav-upgrade').style.display = '';
+      } catch (_) {}
+    }
+
+    async function init() {
+      const session = await requireAuth();
+      if (!session) return;
+      renderNavUser(session.user.email);
+      await Promise.all([loadMe(), loadHistory()]);
+    }
+
+    init();
   </script>
 </body>
 </html>
